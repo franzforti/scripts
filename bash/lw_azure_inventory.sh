@@ -166,9 +166,9 @@ function runAnalysis {
   local expectedSubscriptions=$(az graph query -q "resourcecontainers | where type == 'microsoft.resources/subscriptions' | project name, subscriptionId" $scope  -o json)
   local expectedSubscriptionIds=$(echo $expectedSubscriptions | jq -r '.data[] | .subscriptionId' | sort)
   echo Load VMs
-  local vms=$(az graph query -q "Resources | where type=~'microsoft.compute/virtualmachines' | project subscriptionId, name, sku=properties.hardwareProfile.vmSize, powerState=properties.extended.instanceView.powerState.code" $scope  -o json)
+  local vms=$(az graph query -q "Resources | where type=~'microsoft.compute/virtualmachines' | project subscriptionId, name, sku=properties.hardwareProfile.vmSize, powerState=properties.extended.instanceView.powerState.code" $scope -first 300 -o json)
   echo Load VMSS
-  local vmss=$(az graph query -q "Resources | where type=~ 'microsoft.compute/virtualmachinescalesets' | project subscriptionId, name, sku=sku.name, capacity = toint(sku.capacity)" $scope -o json)
+  local vmss=$(az graph query -q "Resources | where type=~ 'microsoft.compute/virtualmachinescalesets' | project subscriptionId, name, sku=sku.name, capacity = toint(sku.capacity)" $scope -first 300 -o json)
 
   local actualSubscriptionIds=$(echo $vms | jq -r '.data[] | .subscriptionId' | sort | uniq)
 
